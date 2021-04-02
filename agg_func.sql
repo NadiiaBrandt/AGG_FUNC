@@ -3,9 +3,10 @@ GO
 
 
 SELECT 
-	COUNT(GroupName) AS 'Num of groups'
+	GroupName ,COUNT(GroupName) AS 'Num of groups'
 FROM 
 	HumanResources.Department
+	GROUP BY GroupName
 	;
 GO
 
@@ -25,23 +26,18 @@ GO
 
 
 SELECT 
-	PS.Name
-	,StandardCost
-	,SubTotal
-	,MIN(UnitPrice) AS MinPrice
+	MIN(UnitPrice) AS MinPrice
 FROM
 	Sales.SalesOrderHeader SOH
-	,Sales.SalesOrderDetail SOD
-	,Production.Product P
-	,Production.ProductSubcategory PS
-WHERE 
-	P.ProductSubcategoryID = PS.ProductSubcategoryID 
-	AND
-		SOH.SalesOrderID = SOD.SalesOrderID
+	JOIN Sales.SalesOrderDetail SOD
+	ON SOH.SalesOrderID = SOD.SalesOrderID
+	JOIN Production.Product P
+	ON SOD.ProductID = P.ProductID
+	JOIN Production.ProductSubcategory PS
+	ON P.ProductSubcategoryID = PS.ProductSubcategoryID 
+
 GROUP BY
-	SubTotal
-	,StandardCost
-	,PS.Name
+	PS.Name
 	;
 GO
 
@@ -53,42 +49,32 @@ FROM
 	,Production.ProductSubcategory PSC
 WHERE
 	PC.ProductCategoryID=PSC.ProductCategoryID
+GROUP BY PC.Name
 	;
 GO
 
 
 SELECT 
 	PSC.Name
-	,SOH.RevisionNumber
-	,AVG(DISTINCT SOD.UnitPrice) AS 'Average price'
-	,P.ListPrice
-FROM 
-	Sales.SalesOrderHeader SOH
-	,Sales.SalesOrderDetail SOD
-	,Production.Product P
-	,Production.ProductSubcategory PSC
-WHERE 
-	SOH.SalesOrderID = SOD.SalesOrderID
-	AND
-		P.ProductSubcategoryID = PSC.ProductSubcategoryID
-GROUP BY
-	SOH.RevisionNumber
-	,P.ListPrice
-	,PSC.Name
-	;
+	,AVG(SOD.LineTotal) AS AverageOrder
+	FROM Sales.SalesOrderHeader SOH
+		JOIN Sales.SalesOrderDetail SOD
+		ON SOH.SalesOrderID = SOD.SalesOrderID
+		JOIN Production.Product P
+		ON SOD.ProductID = P.ProductID
+		JOIN Production.ProductSubcategory PSC
+		ON P.ProductSubcategoryID = PSC.ProductSubcategoryID
+	GROUP BY 
+		PSC.Name
 GO
 
 
 SELECT
-	LoginID
-	,MAX(Rate) AS MaxRate
-	,HireDate
-FROM 
-	HumanResources.EmployeePayHistory EPH
-	,HumanResources.Employee E
-WHERE E.BusinessEntityID = EPH.BusinessEntityID
-GROUP BY
-	LoginID
-	,HireDate
-	;
-GO
+	EPH.BusinessEntityID
+	,EPH.Rate
+	,MAX(EPH.RateChangeDate) AS MaxRate
+FROM HumanResources.EmployeePayHistory EPH
+GROUP BY EPH.BusinessEntityID, EPH.Rate
+HAVING EPH.RATE = (SELECT MAX(EPH.Rate)
+							FROM HumanResources.EmployeePayHistory EPH)
+
