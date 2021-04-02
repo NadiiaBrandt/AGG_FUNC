@@ -58,10 +58,10 @@ GO
 
 
 SELECT 
-	AVG(DISTINCT SOD.UnitPrice) AS 'Average price'
+	PSC.Name
 	,SOH.RevisionNumber
+	,AVG(DISTINCT SOD.UnitPrice) AS 'Average price'
 	,P.ListPrice
-	,PSC.Name
 FROM 
 	Sales.SalesOrderHeader SOH
 	,Sales.SalesOrderDetail SOD
