@@ -76,5 +76,5 @@ SELECT
 FROM HumanResources.EmployeePayHistory EPH
 GROUP BY EPH.BusinessEntityID, EPH.Rate
 HAVING EPH.RATE = (SELECT MAX(EPH.Rate)
-							FROM HumanResources.EmployeePayHistory EPH)
+						FROM HumanResources.EmployeePayHistory EPH)
 
