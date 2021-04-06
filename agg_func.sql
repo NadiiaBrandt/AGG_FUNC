@@ -26,24 +26,26 @@ GO
 
 
 SELECT 
-	MIN(UnitPrice) AS MinPrice
+	PSC.Name
+	,MIN(UnitPrice) AS MinPrice
 FROM
 	Sales.SalesOrderHeader SOH
 	JOIN Sales.SalesOrderDetail SOD
 	ON SOH.SalesOrderID = SOD.SalesOrderID
 	JOIN Production.Product P
 	ON SOD.ProductID = P.ProductID
-	JOIN Production.ProductSubcategory PS
-	ON P.ProductSubcategoryID = PS.ProductSubcategoryID 
+	JOIN Production.ProductSubcategory PSC
+	ON P.ProductSubcategoryID = PSC.ProductSubcategoryID 
 
 GROUP BY
-	PS.Name
+	PSC.Name
 	;
 GO
 
 
 SELECT 
-	COUNT(PSC.ProductSubcategoryID) AS 'Num of subcategories'
+	PC.Name
+	,COUNT(PSC.ProductSubcategoryID) AS 'Num of subcategories'
 FROM	
 	Production.ProductCategory PC
 	,Production.ProductSubcategory PSC
